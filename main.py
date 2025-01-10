@@ -7,7 +7,25 @@ def display_tasks(tasks):
         print("No tasks found.")
     else:
         for i, task in enumerate(tasks, 1):
-            print(f"{i}. {task}")
+            print(f"{i}. {task.name} | Priority: {task.priority} | Status: {task.status} | Due Date: {task.due_date or 'N/A'}")
+
+
+def get_valid_priority():
+    """Prompt the user for a valid priority."""
+    while True:
+        priority = input("Enter task priority (Low, Normal, High): ").capitalize() or "Normal"
+        if priority in Task.VALID_PRIORITIES:
+            return priority
+        print(f"Invalid priority '{priority}'. Please enter one of: {', '.join(Task.VALID_PRIORITIES)}")
+
+
+def get_valid_due_date():
+    """Prompt the user for a valid due date."""
+    while True:
+        due_date = input("Enter due date (YYYY-MM-DD) or leave blank: ")
+        if not due_date or Task.is_valid_date(due_date):
+            return due_date
+        print("Invalid date format. Please enter a valid date in the format YYYY-MM-DD.")
 
 
 def main():
@@ -27,16 +45,8 @@ def main():
 
         if choice == "1":
             name = input("Enter task name: ")
-            while True:
-                priority = input("Enter task priority (Low, Normal, High): ").capitalize() or "Normal"
-                if priority in Task.VALID_PRIORITIES:
-                    break
-                print(f"Invalid priority '{priority}'. Please enter one of: {', '.join(Task.VALID_PRIORITIES)}")
-            while True:
-                due_date = input("Enter due date (YYYY-MM-DD) or leave blank: ")
-                if not due_date or Task.is_valid_date(due_date):
-                    break
-                print("Invalid date format. Please enter a valid date in the format YYYY-MM-DD.")
+            priority = get_valid_priority()
+            due_date = get_valid_due_date()
             todo_list.add_task(name, priority=priority, due_date=due_date)
             print("Task added successfully.")
 
@@ -54,26 +64,24 @@ def main():
         elif choice == "4":
             name = input("Enter the name of the task to edit: ")
             new_name = input("Enter new task name (or press Enter to skip): ")
-            while True:
-                new_priority = input("Enter new priority (Low, Normal, High) or press Enter to skip: ")
-                if not new_priority or new_priority in Task.VALID_PRIORITIES:
-                    break
+            new_priority = input("Enter new priority (Low, Normal, High) or press Enter to skip: ").capitalize() or None
+            if new_priority and new_priority not in Task.VALID_PRIORITIES:
                 print(f"Invalid priority '{new_priority}'. Please enter one of: {', '.join(Task.VALID_PRIORITIES)}")
-            while True:
-                new_due_date = input("Enter new due date (YYYY-MM-DD) or press Enter to skip: ")
-                if not new_due_date or Task.is_valid_date(new_due_date):
-                    break
-                print("Invalid date format. Please enter a valid date in the format YYYY-MM-DD.")
+                new_priority = None
+            new_due_date = get_valid_due_date() or None
             if todo_list.edit_task(name, new_name=new_name, new_priority=new_priority, new_due_date=new_due_date):
                 print("Task edited successfully.")
             else:
                 print("Task not found.")
 
         elif choice == "5":
-            status = input("Enter status to filter by (Pending or Completed): ")
-            filtered_tasks = todo_list.filter_tasks_by_status(status)
-            print(f"\nTasks with status '{status}':")
-            display_tasks(filtered_tasks)
+            status = input("Enter status to filter by (Pending or Completed): ").capitalize()
+            if status in {"Pending", "Completed"}:
+                filtered_tasks = todo_list.filter_tasks_by_status(status)
+                print(f"\nTasks with status '{status}':")
+                display_tasks(filtered_tasks)
+            else:
+                print("Invalid status. Please enter 'Pending' or 'Completed'.")
 
         elif choice == "6":
             confirm = input("Are you sure you want to clear all tasks? (yes/no): ").strip().lower()

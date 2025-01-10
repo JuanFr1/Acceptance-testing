@@ -1,6 +1,5 @@
 from datetime import datetime
 
-
 class Task:
     VALID_PRIORITIES = ["Low", "Normal", "High"]
 
@@ -53,20 +52,13 @@ class ToDoList:
         self.tasks.clear()
 
     def edit_task(self, task_name, new_name=None, new_priority=None, new_due_date=None):
-        """Edits the details of an existing task."""
         for task in self.tasks:
-            if task.name == task_name:
+            if task.name == task_name:  # Use dot notation
                 if new_name:
                     task.name = new_name
                 if new_priority:
-                    if new_priority not in Task.VALID_PRIORITIES:
-                        raise ValueError(
-                            f"Invalid priority '{new_priority}'. Valid priorities are: {', '.join(Task.VALID_PRIORITIES)}"
-                        )
                     task.priority = new_priority
                 if new_due_date:
-                    if not Task.is_valid_date(new_due_date):
-                        raise ValueError("Invalid due date. Format must be YYYY-MM-DD.")
                     task.due_date = new_due_date
                 return True
         return False
